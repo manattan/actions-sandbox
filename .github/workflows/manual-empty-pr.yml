@@ -14,10 +14,6 @@ on:
         description: 'Title of the pull request'
         required: false
         default: 'Empty pull request'
-      pr_body:
-        description: 'Body of the pull request'
-        required: false
-        default: 'This pull request was created manually and contains an empty commit.'
 
 jobs:
   create-empty-pr:
@@ -43,6 +39,16 @@ jobs:
         run: |
           git push --set-upstream origin "$BRANCH_NAME"
 
+      - name: Prepare pull request body
+        run: |
+          cat <<'EOF' > pr-body.md
+          ## タイトル
+          プレビューURL
+          sample.com
+          ---
+          EOF
+          cat doc/review_checklist.md >> pr-body.md
+
       - name: Create pull request
         uses: peter-evans/create-pull-request@v5
         with:
@@ -50,6 +56,6 @@ jobs:
           branch: ${{ github.event.inputs.branch_name }}
           base: ${{ github.event.inputs.base_branch }}
           title: ${{ github.event.inputs.pr_title }}
-          body: ${{ github.event.inputs.pr_body }}
+          body-path: pr-body.md
           draft: false
           delete-branch: false
