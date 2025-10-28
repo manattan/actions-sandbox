@@ -1,0 +1,55 @@
+name: Manual Empty Pull Request
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Name of the branch to create for the empty pull request'
+        required: true
+      base_branch:
+        description: 'Base branch to open the pull request against'
+        required: false
+        default: main
+      pr_title:
+        description: 'Title of the pull request'
+        required: false
+        default: 'Empty pull request'
+      pr_body:
+        description: 'Body of the pull request'
+        required: false
+        default: 'This pull request was created manually and contains an empty commit.'
+
+jobs:
+  create-empty-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create empty commit
+        env:
+          BRANCH_NAME: ${{ github.event.inputs.branch_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH_NAME"
+          git commit --allow-empty -m "chore: empty commit"
+
+      - name: Push branch
+        env:
+          BRANCH_NAME: ${{ github.event.inputs.branch_name }}
+        run: |
+          git push --set-upstream origin "$BRANCH_NAME"
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.event.inputs.branch_name }}
+          base: ${{ github.event.inputs.base_branch }}
+          title: ${{ github.event.inputs.pr_title }}
+          body: ${{ github.event.inputs.pr_body }}
+          draft: false
+          delete-branch: false
