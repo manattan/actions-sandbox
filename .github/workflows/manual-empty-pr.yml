@@ -14,10 +14,10 @@ on:
         description: 'Title of the pull request'
         required: false
         default: 'Empty pull request'
-      pr_body:
-        description: 'Body of the pull request'
-        required: false
-        default: 'This pull request was created manually and contains an empty commit.'
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   create-empty-pr:
@@ -43,6 +43,14 @@ jobs:
         run: |
           git push --set-upstream origin "$BRANCH_NAME"
 
+      - name: Compose review checklist
+        run: |
+          {
+            echo "CHECKLIST<<'EOF'"
+            cat doc/review_checklist.md
+            echo 'EOF'
+          } >> "$GITHUB_ENV"
+
       - name: Create pull request
         uses: peter-evans/create-pull-request@v5
         with:
@@ -50,6 +58,11 @@ jobs:
           branch: ${{ github.event.inputs.branch_name }}
           base: ${{ github.event.inputs.base_branch }}
           title: ${{ github.event.inputs.pr_title }}
-          body: ${{ github.event.inputs.pr_body }}
+          body: |
+            ## タイトル
+            プレビューURL
+            sample.com
+            ---
+            ${{ env.CHECKLIST }}
           draft: false
           delete-branch: false
