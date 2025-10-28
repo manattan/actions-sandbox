@@ -43,13 +43,15 @@ jobs:
         run: |
           git push --set-upstream origin "$BRANCH_NAME"
 
-      - name: Compose review checklist
+      - name: Prepare pull request body
         run: |
-          {
-            echo "CHECKLIST<<'EOF'"
-            cat doc/review_checklist.md
-            echo 'EOF'
-          } >> "$GITHUB_ENV"
+          cat <<'EOF' > pr-body.md
+          ## タイトル
+          プレビューURL
+          sample.com
+          ---
+          EOF
+          cat doc/review_checklist.md >> pr-body.md
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v5
@@ -58,11 +60,6 @@ jobs:
           branch: ${{ github.event.inputs.branch_name }}
           base: ${{ github.event.inputs.base_branch }}
           title: ${{ github.event.inputs.pr_title }}
-          body: |
-            ## タイトル
-            プレビューURL
-            sample.com
-            ---
-            ${{ env.CHECKLIST }}
+          body-path: pr-body.md
           draft: false
           delete-branch: false
