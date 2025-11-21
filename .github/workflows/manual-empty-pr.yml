@@ -61,5 +61,6 @@ jobs:
           base: ${{ github.event.inputs.base_branch }}
           title: ${{ github.event.inputs.pr_title }}
           body-path: pr-body.md
+          assignees: ${{ github.actor }}
           draft: false
           delete-branch: false
