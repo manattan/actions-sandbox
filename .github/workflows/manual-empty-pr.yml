@@ -62,5 +62,6 @@ jobs:
           title: ${{ github.event.inputs.pr_title }}
           body-path: pr-body.md
           assignees: ${{ github.actor }}
+          reviewers: manattan
           draft: false
           delete-branch: false
