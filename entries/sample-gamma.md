@@ -6,3 +6,5 @@ changed-files アクションの出力から Markdown を抽出するテスト�
 path: entries/sample-gamma.md
 purpose: workflow-validation
 ```
+
+- branch: feature/collect-markdown-samples
