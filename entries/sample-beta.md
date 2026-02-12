@@ -4,5 +4,3 @@
 
 1. markdown file
 2. under entries directory
-
-- branch: feature/collect-markdown-samples

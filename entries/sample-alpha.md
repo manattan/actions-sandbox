@@ -4,5 +4,3 @@
 
 - type: sample
 - id: alpha
-
-- branch: feature/collect-markdown-samples
