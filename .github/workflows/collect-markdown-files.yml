@@ -15,24 +15,28 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get changed files in entries
-        id: changed_files
-        uses: tj-actions/changed-files@v46
-        with:
-          files: entries/**
-          base_sha: ${{ github.event.before }}
-
-      - name: Get markdown files
+      - name: Get markdown files in entries
         id: changed_markdown_files
         shell: bash
         run: |
+          set -euo pipefail
+
+          BEFORE_SHA="${{ github.event.before }}"
+          CURRENT_SHA="${{ github.sha }}"
+          EMPTY_TREE_SHA="0000000000000000000000000000000000000000"
+
+          if [[ "$BEFORE_SHA" == "$EMPTY_TREE_SHA" ]]; then
+            changed_files=$(git diff-tree --no-commit-id --name-only -r "$CURRENT_SHA" -- 'entries/**')
+          else
+            changed_files=$(git diff --name-only "$BEFORE_SHA" "$CURRENT_SHA" -- 'entries/**')
+          fi
+
           markdown_files=()
-          for file in ${{ steps.changed_files.outputs.all_changed_files }}; do
-            if [[ "$file" != *.md ]]; then
-              continue
-            fi
+          while IFS= read -r file; do
+            [[ -z "$file" ]] && continue
+            [[ "$file" != *.md ]] && continue
             markdown_files+=("$file")
-          done
+          done <<< "$changed_files"
 
           echo "MARKDOWN_FILES=${markdown_files[*]}" >> "$GITHUB_OUTPUT"
 
